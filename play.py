@@ -1,16 +1,12 @@
-####################################################
-#  Settings:                                       #
-####################################################
-
 _verify = True   #if the network filters https traffic
                  #set to false to turn off verification
 
-
-
-####################################################
 import sys
 from main import kahoot, error
 import time
+
+# Editor: Ellie
+# Author: msemple111
 
 def get_input():
   try:
@@ -22,8 +18,8 @@ def get_input():
     else:
         verify = True
   except:
-    pin = input("Please Enter the kahoot pin: ")
-    name = input("Please Enter your user name: ")
+    pin = input("Kahoot Pin: ")
+    name = input("Name: ")
     verify = _verify
   try:
     return int(pin), str(name), bool(verify)
@@ -34,15 +30,24 @@ def get_input():
 def esc():
   while send.end == False:
     if send.end == True:
-      print("End!")
+      print("Done")
     else:
       time.sleep(0.1)
 
+
 if __name__ == '__main__':
-  pin, name, verify = get_input()
-  print("connecting ...")
-  send = kahoot(pin, name)
-  send.verify = verify
-  send.connect()
-  send.run_game()
-  esc()
+    print("""\n-------------------------------------------------
+      \tWelcome to the Kahoot Client v2.2 \n
+      \t\tby Ellie <3
+      \n-------------------------------------------------\n
+	  This client literally just asks as a web client, without the graphics""");
+    pin, name, verify = get_input()
+    print("Connecting...")
+    send = kahoot(pin, name)
+    send.verify = verify
+    send.connect()
+    send.run_game()
+    esc()
+
+
+
