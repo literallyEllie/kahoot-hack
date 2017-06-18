@@ -10,6 +10,9 @@ import base64
 import array
 import urllib.parse
 
+# Editor: Ellie
+# Original: msemple1111
+
 def error(err_no, err_desc, end, printErr=True):
   import datetime
   if printErr:
@@ -114,7 +117,13 @@ class kahoot:
     innerdata = json.dumps(innerdata)
     data = [{"channel": "/service/controller", "clientId": self.clientid, "data": {"content": innerdata, "gameid": self.pin, "host": "kahoot.it", "id": 50, "type": "message"}, "id": subId}]
     return str(json.dumps(data))
-
+   
+  def make_crash_payload(self):
+    subId = int(self.subId)
+    innerdata = {"choice": 0, "meta": {"lag": 1000, "device": "shrek"}}
+    data = [{"type":"message", "gameid": self.pin, "host":"kahoot.it", "content":innerdata, "id":6}]
+    return str(json.dumps(data))
+	
   def testSession(self):
     pin = str(self.pin)
     timecode = str(get_tc())
@@ -194,7 +203,7 @@ class kahoot:
           return None
     error(918, str(r.status_code)+" "+str(response),True)
     return None
-
+	
   def connect_while(self):
     pin = str(self.pin)
     while True:
@@ -217,23 +226,26 @@ class kahoot:
       except:
         error(12, "self.connect_while error" + str(r.text), False)
 
-  def ask_question(self, options, questionNo):
+  def ask_question(self, options, questionNo, sendFun):
     options = list(options)
     questionNo = int(questionNo)
     print("List of options are:")
+    if sendFun:
+        print("cyke! sending some hot stuff lmaooo memes")
+        return int(404)
     for option in options:
-      print(int(option)+1)
+        print(int(option)+1)
     while self.questionNo == questionNo:
-      answer = -1
-      try:
-        answer = int(input("Enter your answer: "))
-        questionNo = questionNo - 1
-        answer = answer - 1
-      except:
-        print("your answer is not is the list of options1")
-      if str(answer) in options:
-        return int(answer)
-      else:
+        answer = -1
+        try:
+            answer = int(input("Enter your answer: "))
+            questionNo = questionNo - 1
+            answer = answer - 1
+        except:
+            print("your answer is not is the list of options1")
+        if str(answer) in options:
+            return int(answer)
+    else:
         print("your answer is not is the list of options2")
 
   def do_id_1(self, dataContent):
@@ -241,13 +253,16 @@ class kahoot:
     print("Question number: ", questionNo+1)
     self.questionNo = questionNo
 
-  def do_id_2(self, dataContent):
+  def do_id_2(self, dataContent, sendFun):
     options = []
     questionNo = int(dataContent['questionIndex'])
     for i,x in enumerate(dataContent['answerMap']):
       options.append(x)
-    answer = self.ask_question(sorted(options), questionNo)
-    self.send(self.make_answer_payload(answer))
+    answer = self.ask_question(sorted(options), questionNo, sendFun)
+    if answer == 404:
+        self.send(self.make_crash_payload())
+    else:
+        self.send(self.make_answer_payload(answer))
 
 
   def do_id_3(self, dataContent):
@@ -341,13 +356,13 @@ class kahoot:
         self.get_two_factor()
         self.send(self.make_two_factor_payload(self.twoFactor))
 
-  def service_player(self, data):
+  def service_player(self, data, returnFun=False):
     serviceID = data['id']
     dataContent = json.loads(data['content'])
     if serviceID == 1:
       t = threading.Thread(target=self.do_id_1, args=(dataContent,))
     elif serviceID == 2:
-      t = threading.Thread(target=self.do_id_2, args=(dataContent,))
+      t = threading.Thread(target=self.do_id_2, args=(dataContent,returnFun,))
     elif serviceID == 3:
       t = threading.Thread(target=self.do_id_3, args=(dataContent,))
     elif serviceID == 4:
@@ -399,12 +414,12 @@ class kahoot:
         print('its fucked m8\n\n')
     self.twoFactorCount = self.twoFactorCount + 1
 
-  def queue_wait(self):
+  def queue_wait(self, sendFun=False):
     while True:
       while len(self.queue) > 0:
         for i, x in enumerate(self.queue):
           if x['channel'] == "/service/player":
-            self.service_player(x['data'])
+            self.service_player(x['data'], sendFun)
           self.queue.remove(x)
       else:
         time.sleep(0.05)
@@ -458,8 +473,8 @@ class kahoot:
       for y in range(3):
         self.send(self.make_sub_payload(subscribe_text[y], subscribe_order[x]))
 
-  def run_game(self):
-    t = threading.Thread(target=self.queue_wait)
+  def run_game(self, sendFun=False):
+    t = threading.Thread(target=self.queue_wait, args=(sendFun,))
     t.daemon = True
     t.start()
 
@@ -477,3 +492,4 @@ class kahoot:
       self.setName(self.name)
     else:
       error(909, "no game with pin", True)
+
