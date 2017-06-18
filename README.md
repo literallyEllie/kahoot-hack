@@ -16,7 +16,7 @@ flood.py - Spam the game lobby with many names (e.g. 1000)
 
 play.py - play kahoot normally
 
-Soon to come - crash.py - crashing the game of kahoot so it cannot be played
+crash.py - Allows possibility to crash/significantly lag the lobby.
 
 
 # Installing
