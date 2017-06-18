@@ -40,7 +40,7 @@ if __name__ == '__main__':
       \tWelcome to the Kahoot Client v2.2 \n
       \t\tby Ellie <3
       \n-------------------------------------------------\n
-	  This client literally just asks as a web client, without the graphics""");
+	  This client literally just acts as a web client, without the graphics""");
     pin, name, verify = get_input()
     print("Connecting...")
     send = kahoot(pin, name)
